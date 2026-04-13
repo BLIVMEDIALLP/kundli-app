@@ -1,0 +1,626 @@
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #22222f;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text-muted: #8888a0;
+  --accent: #e8a838;
+  --accent2: #c07030;
+  --green: #38c878;
+  --red: #e84848;
+  --orange: #e8a030;
+  --blue: #4888e8;
+  --radius: 10px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* === App Layout === */
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+}
+.header h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.header p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+/* === Form === */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.form-group input, .form-group select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--accent);
+}
+
+/* Place Search */
+.place-search-wrapper { position: relative; }
+.place-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.place-suggestion {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.place-suggestion:hover { background: var(--border); }
+.place-searching {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+.coords-display {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.error-msg {
+  background: rgba(232, 72, 72, 0.12);
+  color: var(--red);
+  border: 1px solid rgba(232, 72, 72, 0.3);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; }
+
+/* === Loading === */
+.loading-wrapper {
+  text-align: center;
+  padding: 3rem 0;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-sub { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; }
+
+/* === Report === */
+.report-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.pdf-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.pdf-btn:hover { opacity: 0.88; }
+.pdf-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.back-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+.back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.report-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.report-header h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+.report-meta { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; }
+
+.birth-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.birth-detail-item {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+}
+.birth-detail-item .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.birth-detail-item .value { font-size: 0.95rem; font-weight: 500; margin-top: 0.15rem; }
+
+/* === Tabs === */
+.tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* === Section Cards === */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.section-header {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header h3 { font-size: 1rem; font-weight: 600; }
+.section-body { padding: 1rem 1.25rem; }
+
+/* === Interpretations === */
+.interp-block {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.interp-block:last-child { border-bottom: none; }
+.interp-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 0.3rem; }
+.interp-text { font-size: 0.88rem; color: var(--text); line-height: 1.65; }
+
+/* === Tables === */
+.table-wrap { overflow-x: auto; }
+.planet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.planet-table th, .planet-table td {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.planet-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.planet-sym { margin-right: 0.3rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge.retro { background: rgba(232, 72, 72, 0.15); color: var(--red); }
+.badge.strong { background: rgba(56, 200, 120, 0.15); color: var(--green); }
+.badge.moderate { background: rgba(232, 160, 48, 0.15); color: var(--orange); }
+.badge.weak { background: rgba(232, 72, 72, 0.15); color: var(--red); }
+
+/* === Houses Grid === */
+.houses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+.house-item {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+}
+.house-num { font-size: 0.78rem; font-weight: 600; color: var(--accent); }
+.house-sign { font-size: 0.9rem; margin-top: 0.15rem; }
+.house-planets { font-size: 0.82rem; color: var(--blue); margin-top: 0.2rem; }
+.house-meaning { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; line-height: 1.4; }
+
+/* === Dasha === */
+.dasha-current {
+  background: linear-gradient(135deg, rgba(232, 168, 56, 0.08), rgba(192, 112, 48, 0.08));
+  border: 1px solid rgba(232, 168, 56, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.dasha-current .maha { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.dasha-current .antar { font-size: 0.9rem; color: var(--text); margin-top: 0.15rem; }
+.dasha-current .period { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; }
+.dasha-interp { font-size: 0.85rem; color: var(--text); margin-top: 0.5rem; line-height: 1.6; }
+
+.dasha-timeline { display: flex; flex-direction: column; gap: 0; }
+.dasha-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 0.5fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.dasha-item:hover { background: var(--surface2); }
+.dasha-item.active { background: rgba(232, 168, 56, 0.06); }
+.dasha-lord { font-weight: 600; font-size: 0.9rem; }
+.dasha-dates { font-size: 0.8rem; color: var(--text-muted); }
+.dasha-years { font-size: 0.8rem; text-align: right; }
+.dasha-expand { font-size: 0.7rem; color: var(--text-muted); }
+
+.antardasha-list {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 0.3rem 0 0.3rem 1.5rem;
+}
+.antar-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 60px;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+.antar-item.active { background: rgba(232, 168, 56, 0.1); color: var(--accent); }
+.antar-lord { font-weight: 500; }
+.antar-dates { color: var(--text-muted); }
+.antar-years { text-align: right; color: var(--text-muted); }
+
+/* === Doshas === */
+.dosha-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.dosha-item {
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--border);
+}
+.dosha-item.high { border-left-color: var(--red); background: rgba(232, 72, 72, 0.05); }
+.dosha-item.mod { border-left-color: var(--orange); background: rgba(232, 160, 48, 0.05); }
+.dosha-item.none { border-left-color: var(--green); background: rgba(56, 200, 120, 0.05); }
+.dosha-name { font-weight: 600; font-size: 0.95rem; }
+.dosha-severity { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; }
+.dosha-desc { font-size: 0.85rem; margin-top: 0.35rem; line-height: 1.55; }
+.dosha-remedy {
+  font-size: 0.82rem;
+  color: var(--accent);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+}
+
+/* === KP System === */
+.kp-ruling-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.kp-ruling-card {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+.kp-ruling-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+.kp-ruling-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+}
+.kp-ruling-row span:first-child { color: var(--text-muted); }
+.kp-val { font-weight: 600; }
+.kp-lord { font-weight: 500; }
+.kp-sub { color: var(--accent); font-weight: 600; }
+.cusp-num { font-weight: 700; color: var(--accent); }
+
+/* === Charts Layout === */
+.charts-pair {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.charts-pair .section-card { flex: 1; min-width: 300px; }
+.charts-section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0 0.25rem;
+}
+
+/* === North Indian Chart (Table-based) === */
+.ni-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem 0 0.5rem;
+}
+.ni-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9a7830;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.ni-table-wrap { overflow: auto; }
+.ni-table {
+  border-collapse: collapse;
+  width: 300px;
+  height: 300px;
+  background: #f8f2de;
+  border: 2.5px solid #c8a030;
+  table-layout: fixed;
+}
+@media (min-width: 500px) {
+  .ni-table { width: 340px; height: 340px; }
+}
+.ni-td {
+  border: 1.5px solid #c8a030;
+  width: 25%;
+  vertical-align: middle;
+  text-align: center;
+  padding: 2px;
+  position: relative;
+  background: #f8f2de;
+}
+.ni-td-lagna { background: #fdf5d8; }
+.ni-td-center {
+  border: 1.5px solid #c8a030;
+  background: #f8f2de;
+  text-align: center;
+  vertical-align: middle;
+}
+.ni-center-star { font-size: 1.4rem; color: #c8a030; opacity: 0.35; }
+.ni-td-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 0.5rem;
+  color: #b09040;
+  font-weight: 700;
+  line-height: 1;
+}
+.ni-td-sign {
+  font-size: 0.55rem;
+  color: #907030;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+.ni-td-planets {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: 12px;
+}
+.ni-td-lag {
+  display: block;
+  font-size: 0.5rem;
+  color: #9a8030;
+  font-style: italic;
+  line-height: 1.2;
+}
+.ni-td-p {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.ni-td-retro { font-size: 0.45rem; }
+
+/* === South Indian Chart (Grid-based, independent) === */
+.si-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem 0 0.5rem;
+}
+.si-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9a7830;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.si-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  width: 300px;
+  height: 300px;
+  border: 2.5px solid #c8a030;
+  background: #f8f2de;
+}
+@media (min-width: 500px) {
+  .si-grid { width: 340px; height: 340px; }
+}
+.si-cell {
+  border: 1.5px solid #c8a030;
+  padding: 3px 3px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: #f8f2de;
+}
+.si-cell-asc { background: #fdf5d8; }
+.si-center {
+  grid-column: 2 / 4;
+  grid-row: 2 / 4;
+  border: 1.5px solid #c8a030;
+  background: #f8f2de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.si-center-star { font-size: 1.4rem; color: #c8a030; opacity: 0.35; }
+.si-sign {
+  font-size: 0.55rem;
+  color: #907030;
+  font-weight: 700;
+  align-self: flex-start;
+  line-height: 1;
+}
+.si-house {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 0.5rem;
+  color: #b09040;
+  font-weight: 700;
+  line-height: 1;
+}
+.si-planets-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: 10px;
+}
+.si-asc-label {
+  font-size: 0.5rem;
+  color: #9a8030;
+  font-style: italic;
+  line-height: 1.2;
+}
+.si-p {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.si-retro { font-size: 0.45rem; }
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .app { padding: 1rem 0.75rem 2rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .birth-details { grid-template-columns: 1fr 1fr; }
+  .houses-grid { grid-template-columns: 1fr; }
+  .dasha-item { grid-template-columns: 1fr 1.5fr 0.5fr auto; font-size: 0.85rem; }
+  .antar-item { grid-template-columns: 60px 1fr 50px; }
+  .header h1 { font-size: 1.8rem; }
+}
