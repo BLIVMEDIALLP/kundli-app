@@ -442,7 +442,7 @@ body {
   padding: 0.5rem 0 0.25rem;
 }
 
-/* === North Indian Chart (Table-based) === */
+/* === North Indian Chart (SVG diamond layout) === */
 .ni-wrap {
   display: flex;
   flex-direction: column;
@@ -458,73 +458,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
-.ni-table-wrap { overflow: auto; }
-.ni-table {
-  border-collapse: collapse;
-  width: 300px;
-  height: 300px;
-  background: #f8f2de;
-  border: 2.5px solid #c8a030;
-  table-layout: fixed;
-}
-@media (min-width: 500px) {
-  .ni-table { width: 340px; height: 340px; }
-}
-.ni-td {
-  border: 1.5px solid #c8a030;
-  width: 25%;
-  vertical-align: middle;
-  text-align: center;
-  padding: 2px;
-  position: relative;
-  background: #f8f2de;
-}
-.ni-td-lagna { background: #fdf5d8; }
-.ni-td-center {
-  border: 1.5px solid #c8a030;
-  background: #f8f2de;
-  text-align: center;
-  vertical-align: middle;
-}
-.ni-center-star { font-size: 1.4rem; color: #c8a030; opacity: 0.35; }
-.ni-td-num {
-  position: absolute;
-  top: 2px;
-  left: 3px;
-  font-size: 0.5rem;
-  color: #b09040;
-  font-weight: 700;
-  line-height: 1;
-}
-.ni-td-sign {
-  font-size: 0.55rem;
-  color: #907030;
-  font-weight: 600;
-  line-height: 1;
-  margin-bottom: 1px;
-}
-.ni-td-planets {
+.ni-svg-wrap {
+  overflow: auto;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  margin-top: 12px;
+  justify-content: center;
 }
-.ni-td-lag {
-  display: block;
-  font-size: 0.5rem;
-  color: #9a8030;
-  font-style: italic;
-  line-height: 1.2;
-}
-.ni-td-p {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1.3;
-  white-space: nowrap;
-}
-.ni-td-retro { font-size: 0.45rem; }
 
 /* === South Indian Chart (Grid-based, independent) === */
 .si-wrap {

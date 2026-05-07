@@ -24,6 +24,7 @@ export default function Report({ data, onBack }) {
   async function handleDownloadPdf() {
     setDownloading(true);
     try { await downloadKundliPdf(data); }
+    catch (err) { console.error('PDF generation failed:', err); }
     finally { setDownloading(false); }
   }
 
@@ -31,6 +32,14 @@ export default function Report({ data, onBack }) {
   const retrogradeMap = rawPlanets
     ? Object.fromEntries(Object.entries(rawPlanets).map(([n, p]) => [n, p.isRetrograde]))
     : {};
+
+  // Degree map for chart rendering (planet name -> degree in sign)
+  const degreeMap = rawPlanets
+    ? Object.fromEntries(Object.entries(rawPlanets).map(([n, p]) => [n, p.degree ?? (p.longitude % 30)]))
+    : {};
+
+  // Ascendant degree
+  const ascDegree = data.ascendant?.degree ?? null;
 
   // Bhav Chalit house placements from KP cusp-based house assignments (for North Indian chart)
   const bhavChality = kp ? (() => {
@@ -125,6 +134,8 @@ export default function Report({ data, onBack }) {
                 housePlacements={housePlacements}
                 title="Lagna Chart"
                 retrogradeMap={retrogradeMap}
+                degreeMap={degreeMap}
+                ascDegree={ascDegree}
               />
             </Section>
             {bhavChality && (
@@ -133,6 +144,8 @@ export default function Report({ data, onBack }) {
                   housePlacements={bhavChality}
                   title="Bhav Chalit"
                   retrogradeMap={retrogradeMap}
+                  degreeMap={degreeMap}
+                  ascDegree={ascDegree}
                 />
               </Section>
             )}
@@ -145,6 +158,7 @@ export default function Report({ data, onBack }) {
                 ascendantSign={summary.ascendant}
                 title="South Indian Lagna"
                 retrogradeMap={retrogradeMap}
+                degreeMap={degreeMap}
               />
             </Section>
             {bhavChalitPlanetsForSouth && (
@@ -154,6 +168,7 @@ export default function Report({ data, onBack }) {
                   ascendantSign={summary.ascendant}
                   title="South Indian Bhav Chalit"
                   retrogradeMap={retrogradeMap}
+                  degreeMap={degreeMap}
                 />
               </Section>
             )}

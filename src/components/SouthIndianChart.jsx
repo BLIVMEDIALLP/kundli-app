@@ -1,11 +1,6 @@
 // South Indian Kundli Chart
 // Signs are FIXED in position. Planets placed in their sign's cell.
 // Houses counted clockwise from Ascendant sign.
-//
-//  Pis | Ari | Tau | Gem
-//  Aqu |  center   | Can
-//  Cap |  center   | Leo
-//  Sag | Sco | Lib | Vir
 
 const PLANET_SHORT = {
   Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me',
@@ -36,7 +31,7 @@ const SIGN_SHORT = {
   Scorpio:'Sco', Sagittarius:'Sag', Capricorn:'Cap', Aquarius:'Aqu',
 };
 
-export default function SouthIndianChart({ planets, ascendantSign, title, retrogradeMap }) {
+export default function SouthIndianChart({ planets, ascendantSign, title, retrogradeMap, degreeMap }) {
   const signPlanets = {};
   for (const [name, data] of Object.entries(planets || {})) {
     if (!signPlanets[data.sign]) signPlanets[data.sign] = [];
@@ -68,12 +63,16 @@ export default function SouthIndianChart({ planets, ascendantSign, title, retrog
               {house && <span className="si-house">{house}</span>}
               <div className="si-planets-wrap">
                 {isAsc && <span className="si-asc-label">Asc</span>}
-                {planetsInSign.map(p => (
-                  <span key={p} className="si-p" style={{ color: PLANET_COLOR[p] || '#555' }}>
-                    {PLANET_SHORT[p] || p.slice(0, 2)}
-                    {retrogradeMap?.[p] && <sup className="si-retro">R</sup>}
-                  </span>
-                ))}
+                {planetsInSign.map(p => {
+                  const deg = degreeMap?.[p];
+                  const degStr = deg != null ? `-${Number(deg).toFixed(1)}°` : '';
+                  return (
+                    <span key={p} className="si-p" style={{ color: PLANET_COLOR[p] || '#555' }}>
+                      {PLANET_SHORT[p] || p.slice(0, 2)}{degStr}
+                      {retrogradeMap?.[p] && <sup className="si-retro">R</sup>}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           );
