@@ -153,8 +153,9 @@ export default function NorthIndianChart({
                 y={SIGN_POS[num].y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="#b0a070"
-                fontSize="8"
+                fill="#8a7a50"
+                fontSize="11"
+                fontWeight="600"
                 fontFamily="Inter, sans-serif"
               >
                 {sign.slice(0, 3)}
