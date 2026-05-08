@@ -22,36 +22,36 @@ const S = 400;
 const M = S / 2; // 200
 const P = 6;     // padding
 
-// House number positions (red numbers)
+// House number positions (red numbers) — geometrically inside each triangular region
 const HNUM = {
-  1:  { x: M + 80, y: M - 105 },  // top-right trapezoid, upper
-  12: { x: M + 80, y: M - 60 },   // top-right trapezoid, lower
-  2:  { x: M,      y: M - 55 },   // center diamond, top
-  3:  { x: M - 80, y: M - 105 },  // top-left trapezoid, upper
-  4:  { x: M - 80, y: M - 60 },   // top-left trapezoid, lower
-  5:  { x: M - 55, y: M },        // center diamond, left
-  6:  { x: M - 80, y: M + 60 },   // bottom-left trapezoid, upper
-  7:  { x: M - 80, y: M + 105 },  // bottom-left trapezoid, lower
-  8:  { x: M,      y: M + 55 },   // center diamond, bottom
-  9:  { x: M + 80, y: M + 105 },  // bottom-right trapezoid, lower
-  10: { x: M + 80, y: M + 60 },   // bottom-right trapezoid, upper
-  11: { x: M + 55, y: M },        // center diamond, right
+  1:  { x: 295, y: 30 },   // top-right corner, upper triangle
+  12: { x: 362, y: 95 },   // top-right corner, lower triangle
+  2:  { x: 200, y: 55 },   // center diamond, top kite
+  3:  { x: 105, y: 30 },   // top-left corner, upper triangle
+  4:  { x: 38,  y: 95 },   // top-left corner, lower triangle
+  5:  { x: 55,  y: 200 },  // center diamond, left kite
+  6:  { x: 38,  y: 305 },  // bottom-left corner, upper triangle
+  7:  { x: 105, y: 370 },  // bottom-left corner, lower triangle
+  8:  { x: 200, y: 345 },  // center diamond, bottom kite
+  9:  { x: 295, y: 370 },  // bottom-right corner, lower triangle
+  10: { x: 362, y: 305 },  // bottom-right corner, upper triangle
+  11: { x: 345, y: 200 },  // center diamond, right kite
 };
 
-// Planet text positions (center of each house area for planet labels)
+// Planet text positions — centered in each house's geometric region
 const PPOS = {
-  1:  { x: M + 80, y: M - 130 },  // top-right, upper area
-  12: { x: M + 80, y: M - 35 },   // top-right, lower area
-  2:  { x: M,      y: M - 75 },   // center top
-  3:  { x: M - 80, y: M - 130 },  // top-left, upper area
-  4:  { x: M - 80, y: M - 35 },   // top-left, lower area
-  5:  { x: M - 75, y: M },        // center left
-  6:  { x: M - 80, y: M + 35 },   // bottom-left, upper area
-  7:  { x: M - 80, y: M + 130 },  // bottom-left, lower area
-  8:  { x: M,      y: M + 75 },   // center bottom
-  9:  { x: M + 80, y: M + 130 },  // bottom-right, lower area
-  10: { x: M + 80, y: M + 35 },   // bottom-right, upper area
-  11: { x: M + 75, y: M },        // center right
+  1:  { x: 295, y: 52 },   // top-right upper triangle
+  12: { x: 355, y: 120 },  // top-right lower triangle
+  2:  { x: 200, y: 95 },   // center diamond top
+  3:  { x: 105, y: 52 },   // top-left upper triangle
+  4:  { x: 45,  y: 120 },  // top-left lower triangle
+  5:  { x: 95,  y: 200 },  // center diamond left
+  6:  { x: 45,  y: 280 },  // bottom-left upper triangle
+  7:  { x: 105, y: 348 },  // bottom-left lower triangle
+  8:  { x: 200, y: 305 },  // center diamond bottom
+  9:  { x: 295, y: 348 },  // bottom-right lower triangle
+  10: { x: 355, y: 280 },  // bottom-right upper triangle
+  11: { x: 305, y: 200 },  // center diamond right
 };
 
 function PlanetGroup({ planets, pos, retrogradeMap, degreeMap }) {
@@ -127,14 +127,14 @@ export default function NorthIndianChart({
             </text>
           ))}
 
-          {/* Ascendant label — between house 1 and 12 in top-right */}
+          {/* Ascendant label — inside house 1 triangle */}
           <text
-            x={M + 45}
-            y={M - 82}
+            x={295}
+            y={15}
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#9a8030"
-            fontSize="9.5"
+            fontSize="9"
             fontStyle="italic"
             fontFamily="Inter, sans-serif"
           >

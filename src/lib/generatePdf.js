@@ -173,14 +173,14 @@ function drawNorthIndianChart(doc, housePlacements, retrogradeMap, degreeMap, as
     .forEach(([px,py]) => doc.circle(px, py, 1.2, 'F'));
 
   const HNUM = {
-    1:[280,95], 12:[280,140], 2:[200,145], 3:[120,95],
-    4:[120,140], 5:[145,200], 6:[120,260], 7:[120,305],
-    8:[200,255], 9:[280,305], 10:[280,260], 11:[255,200],
+    1:[295,30], 12:[362,95], 2:[200,55], 3:[105,30],
+    4:[38,95], 5:[55,200], 6:[38,305], 7:[105,370],
+    8:[200,345], 9:[295,370], 10:[362,305], 11:[345,200],
   };
   const PPOS = {
-    1:[280,70], 12:[280,165], 2:[200,125], 3:[120,70],
-    4:[120,165], 5:[125,200], 6:[120,235], 7:[120,330],
-    8:[200,275], 9:[280,330], 10:[280,235], 11:[275,200],
+    1:[295,52], 12:[355,120], 2:[200,95], 3:[105,52],
+    4:[45,120], 5:[95,200], 6:[45,280], 7:[105,348],
+    8:[200,305], 9:[295,348], 10:[355,280], 11:[305,200],
   };
 
   doc.setFontSize(5.5);
@@ -189,10 +189,10 @@ function drawNorthIndianChart(doc, housePlacements, retrogradeMap, degreeMap, as
     doc.text(h, x + hx*s, y + hy*s, { align: 'center' });
   }
 
-  doc.setFontSize(5);
+  doc.setFontSize(4.5);
   setColor(doc, BRAND.goldDark);
   const ascLabel = 'Asc' + (ascDegree != null ? `-${Number(ascDegree).toFixed(2)}°` : '');
-  doc.text(ascLabel, x + 245*s, y + 118*s, { align: 'center' });
+  doc.text(ascLabel, x + 295*s, y + 15*s, { align: 'center' });
 
   doc.setFontSize(5);
   for (let num = 1; num <= 12; num++) {
