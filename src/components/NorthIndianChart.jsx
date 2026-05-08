@@ -1,11 +1,10 @@
 // Traditional North Indian Kundli Chart — SVG diamond layout
 //
-// Standard layout:
-//   Corner trapezoids (2 houses each, split by corner diagonal):
-//     Top-right: 1 (upper), 12 (lower)    Top-left: 3 (upper), 4 (lower)
-//     Bot-left:  6 (upper), 7 (lower)     Bot-right: 9 (lower), 10 (upper)
-//   Center diamond (4 triangular sections):
-//     Top: 2    Left: 5    Bottom: 8    Right: 11
+// Standard layout (House 1 = top center diamond):
+//   Center diamond:  Top: 1    Left: 4    Bottom: 7    Right: 10
+//   Corner trapezoids (split by corner diagonal):
+//     Top-right: 12 (upper), 11 (lower)    Top-left: 2 (upper), 3 (lower)
+//     Bot-left:  5 (upper), 6 (lower)      Bot-right: 8 (lower), 9 (upper)
 
 const PLANET_SHORT = {
   Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me',
@@ -22,36 +21,52 @@ const S = 400;
 const M = S / 2; // 200
 const P = 6;     // padding
 
-// House number positions (red numbers) — geometrically inside each triangular region
+// House number positions — House 1 at top center diamond, counter-clockwise
 const HNUM = {
-  1:  { x: 295, y: 30 },   // top-right corner, upper triangle
-  12: { x: 362, y: 95 },   // top-right corner, lower triangle
-  2:  { x: 200, y: 55 },   // center diamond, top kite
-  3:  { x: 105, y: 30 },   // top-left corner, upper triangle
-  4:  { x: 38,  y: 95 },   // top-left corner, lower triangle
-  5:  { x: 55,  y: 200 },  // center diamond, left kite
-  6:  { x: 38,  y: 305 },  // bottom-left corner, upper triangle
-  7:  { x: 105, y: 370 },  // bottom-left corner, lower triangle
-  8:  { x: 200, y: 345 },  // center diamond, bottom kite
-  9:  { x: 295, y: 370 },  // bottom-right corner, lower triangle
-  10: { x: 362, y: 305 },  // bottom-right corner, upper triangle
-  11: { x: 345, y: 200 },  // center diamond, right kite
+  1:  { x: 200, y: 55 },   // center diamond top
+  2:  { x: 105, y: 30 },   // top-left corner, upper triangle
+  3:  { x: 38,  y: 95 },   // top-left corner, lower triangle
+  4:  { x: 55,  y: 200 },  // center diamond left
+  5:  { x: 38,  y: 305 },  // bottom-left corner, upper triangle
+  6:  { x: 105, y: 370 },  // bottom-left corner, lower triangle
+  7:  { x: 200, y: 345 },  // center diamond bottom
+  8:  { x: 295, y: 370 },  // bottom-right corner, lower triangle
+  9:  { x: 362, y: 305 },  // bottom-right corner, upper triangle
+  10: { x: 345, y: 200 },  // center diamond right
+  11: { x: 362, y: 95 },   // top-right corner, lower triangle
+  12: { x: 295, y: 30 },   // top-right corner, upper triangle
 };
 
 // Planet text positions — centered in each house's geometric region
 const PPOS = {
-  1:  { x: 295, y: 52 },   // top-right upper triangle
-  12: { x: 355, y: 120 },  // top-right lower triangle
-  2:  { x: 200, y: 95 },   // center diamond top
-  3:  { x: 105, y: 52 },   // top-left upper triangle
-  4:  { x: 45,  y: 120 },  // top-left lower triangle
-  5:  { x: 95,  y: 200 },  // center diamond left
-  6:  { x: 45,  y: 280 },  // bottom-left upper triangle
-  7:  { x: 105, y: 348 },  // bottom-left lower triangle
-  8:  { x: 200, y: 305 },  // center diamond bottom
-  9:  { x: 295, y: 348 },  // bottom-right lower triangle
-  10: { x: 355, y: 280 },  // bottom-right upper triangle
-  11: { x: 305, y: 200 },  // center diamond right
+  1:  { x: 200, y: 95 },   // center diamond top
+  2:  { x: 105, y: 52 },   // top-left upper triangle
+  3:  { x: 45,  y: 120 },  // top-left lower triangle
+  4:  { x: 95,  y: 200 },  // center diamond left
+  5:  { x: 45,  y: 280 },  // bottom-left upper triangle
+  6:  { x: 105, y: 348 },  // bottom-left lower triangle
+  7:  { x: 200, y: 305 },  // center diamond bottom
+  8:  { x: 295, y: 348 },  // bottom-right lower triangle
+  9:  { x: 355, y: 280 },  // bottom-right upper triangle
+  10: { x: 305, y: 200 },  // center diamond right
+  11: { x: 355, y: 120 },  // top-right lower triangle
+  12: { x: 295, y: 52 },   // top-right upper triangle
+};
+
+// Sign label positions — small sign name inside each house
+const SIGN_POS = {
+  1:  { x: 200, y: 40 },
+  2:  { x: 105, y: 18 },
+  3:  { x: 22,  y: 80 },
+  4:  { x: 30,  y: 200 },
+  5:  { x: 22,  y: 320 },
+  6:  { x: 105, y: 384 },
+  7:  { x: 200, y: 360 },
+  8:  { x: 295, y: 384 },
+  9:  { x: 378, y: 320 },
+  10: { x: 370, y: 200 },
+  11: { x: 378, y: 80 },
+  12: { x: 295, y: 18 },
 };
 
 function PlanetGroup({ planets, pos, retrogradeMap, degreeMap }) {
@@ -127,10 +142,30 @@ export default function NorthIndianChart({
             </text>
           ))}
 
-          {/* Ascendant label — inside house 1 triangle */}
+          {/* Sign names in each house */}
+          {[1,2,3,4,5,6,7,8,9,10,11,12].map(num => {
+            const sign = h(num)?.sign;
+            if (!sign) return null;
+            return (
+              <text
+                key={`s${num}`}
+                x={SIGN_POS[num].x}
+                y={SIGN_POS[num].y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#b0a070"
+                fontSize="8"
+                fontFamily="Inter, sans-serif"
+              >
+                {sign.slice(0, 3)}
+              </text>
+            );
+          })}
+
+          {/* Ascendant label — inside house 1 (top center diamond) */}
           <text
-            x={295}
-            y={15}
+            x={200}
+            y={22}
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#9a8030"

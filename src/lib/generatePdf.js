@@ -172,15 +172,21 @@ function drawNorthIndianChart(doc, housePlacements, retrogradeMap, degreeMap, as
   [[x+1.5,y+1.5],[x+size-1.5,y+1.5],[x+size-1.5,y+size-1.5],[x+1.5,y+size-1.5]]
     .forEach(([px,py]) => doc.circle(px, py, 1.2, 'F'));
 
+  // House 1 at top center diamond, counter-clockwise
   const HNUM = {
-    1:[295,30], 12:[362,95], 2:[200,55], 3:[105,30],
-    4:[38,95], 5:[55,200], 6:[38,305], 7:[105,370],
-    8:[200,345], 9:[295,370], 10:[362,305], 11:[345,200],
+    1:[200,55], 2:[105,30], 3:[38,95], 4:[55,200],
+    5:[38,305], 6:[105,370], 7:[200,345], 8:[295,370],
+    9:[362,305], 10:[345,200], 11:[362,95], 12:[295,30],
   };
   const PPOS = {
-    1:[295,52], 12:[355,120], 2:[200,95], 3:[105,52],
-    4:[45,120], 5:[95,200], 6:[45,280], 7:[105,348],
-    8:[200,305], 9:[295,348], 10:[355,280], 11:[305,200],
+    1:[200,95], 2:[105,52], 3:[45,120], 4:[95,200],
+    5:[45,280], 6:[105,348], 7:[200,305], 8:[295,348],
+    9:[355,280], 10:[305,200], 11:[355,120], 12:[295,52],
+  };
+  const SIGN_POS = {
+    1:[200,35], 2:[105,15], 3:[20,75], 4:[28,200],
+    5:[20,325], 6:[105,386], 7:[200,365], 8:[295,386],
+    9:[380,325], 10:[372,200], 11:[380,75], 12:[295,15],
   };
 
   doc.setFontSize(5.5);
@@ -189,10 +195,20 @@ function drawNorthIndianChart(doc, housePlacements, retrogradeMap, degreeMap, as
     doc.text(h, x + hx*s, y + hy*s, { align: 'center' });
   }
 
+  // Sign names in each house
+  doc.setFontSize(4);
+  for (let num = 1; num <= 12; num++) {
+    const hp = housePlacements?.find(h => h.house === num);
+    if (!hp?.sign) continue;
+    const [sx,sy] = SIGN_POS[num];
+    setColor(doc, BRAND.textLight);
+    doc.text(hp.sign.slice(0,3), x + sx*s, y + sy*s, { align: 'center' });
+  }
+
   doc.setFontSize(4.5);
   setColor(doc, BRAND.goldDark);
   const ascLabel = 'Asc' + (ascDegree != null ? `-${Number(ascDegree).toFixed(2)}°` : '');
-  doc.text(ascLabel, x + 295*s, y + 15*s, { align: 'center' });
+  doc.text(ascLabel, x + 200*s, y + 18*s, { align: 'center' });
 
   doc.setFontSize(5);
   for (let num = 1; num <= 12; num++) {
