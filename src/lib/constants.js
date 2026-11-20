@@ -1,3 +1,15 @@
+// Used by "Use example details" / "View sample report" shortcuts — real, geocodable birth data.
+export const EXAMPLE_PERSON = {
+  name: 'Aarav Sharma',
+  gender: 'Male',
+  dateOfBirth: '1995-08-15',
+  timeOfBirth: '10:30',
+  placeOfBirth: 'Varanasi, Uttar Pradesh, India',
+  latitude: 25.3176,
+  longitude: 82.9739,
+  timezone: 5.5,
+};
+
 export const SIGNS = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',

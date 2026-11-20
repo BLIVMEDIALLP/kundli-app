@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { EXAMPLE_PERSON } from '../lib/constants.js';
 
 const TIMEZONES = [
   { label: 'IST — India (UTC+5:30)', value: 5.5 },
@@ -16,7 +17,7 @@ const TIMEZONES = [
 
 export default function InputForm({ onSubmit }) {
   const [form, setForm] = useState({
-    name: '', gender: 'Male', dateOfBirth: '', timeOfBirth: '',
+    name: '', gender: '', dateOfBirth: '', timeOfBirth: '',
     placeOfBirth: '', latitude: '', longitude: '', timezone: 5.5,
   });
   const [placeQuery, setPlaceQuery] = useState('');
@@ -71,6 +72,13 @@ export default function InputForm({ onSubmit }) {
     setSuggestions([]);
   }
 
+  function fillExample() {
+    setError('');
+    setSuggestions([]);
+    setPlaceQuery(EXAMPLE_PERSON.placeOfBirth);
+    setForm({ ...EXAMPLE_PERSON });
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     setError('');
@@ -88,68 +96,65 @@ export default function InputForm({ onSubmit }) {
   }
 
   return (
-    <div className="form-card">
-      <form onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-group full-width">
-            <label>Full Name</label>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter full name" autoComplete="off" />
-          </div>
-
-          <div className="form-group">
-            <label>Gender</label>
-            <select name="gender" value={form.gender} onChange={handleChange}>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Date of Birth</label>
-            <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} />
-          </div>
-
-          <div className="form-group">
-            <label>Time of Birth</label>
-            <input type="time" name="timeOfBirth" value={form.timeOfBirth} onChange={handleChange} />
-          </div>
-
-          <div className="form-group">
-            <label>Timezone</label>
-            <select name="timezone" value={form.timezone} onChange={handleChange}>
-              {TIMEZONES.map(tz => (
-                <option key={tz.value} value={tz.value}>{tz.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group full-width">
-            <label>Place of Birth</label>
-            <div className="place-search-wrapper">
-              <input value={placeQuery} onChange={handlePlaceInput} placeholder="Search city or town..." autoComplete="off" />
-              {searching && <div className="place-searching">Searching...</div>}
-              {suggestions.length > 0 && (
-                <div className="place-suggestions">
-                  {suggestions.map((s, i) => (
-                    <div key={i} className="place-suggestion" onClick={() => selectSuggestion(s)}>
-                      {s.display_name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {form.latitude && form.longitude && (
-              <div className="coords-display">
-                Lat: {parseFloat(form.latitude).toFixed(4)}, Lon: {parseFloat(form.longitude).toFixed(4)}
+    <form id="birth-form" onSubmit={handleSubmit}>
+      <div className="fields">
+        <label>Full name
+          <input name="name" value={form.name} onChange={handleChange} maxLength={90} placeholder="Enter your full name" autoComplete="off" />
+        </label>
+        <label>Gender
+          <select name="gender" value={form.gender} onChange={handleChange}>
+            <option value="" disabled>Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Date of birth
+          <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} />
+        </label>
+        <label>Time of birth
+          <input type="time" name="timeOfBirth" value={form.timeOfBirth} onChange={handleChange} />
+        </label>
+        <label>Place of birth
+          <div className="place-search-wrapper">
+            <input value={placeQuery} onChange={handlePlaceInput} placeholder="Enter city or town" autoComplete="off" />
+            {searching && <div className="place-searching">Searching…</div>}
+            {suggestions.length > 0 && (
+              <div className="place-suggestions">
+                {suggestions.map((s, i) => (
+                  <div key={i} className="place-suggestion" onClick={() => selectSuggestion(s)}>
+                    {s.display_name}
+                  </div>
+                ))}
               </div>
             )}
           </div>
-        </div>
+          {form.latitude && form.longitude && (
+            <div className="coords-display">
+              Lat: {parseFloat(form.latitude).toFixed(4)}, Lon: {parseFloat(form.longitude).toFixed(4)}
+            </div>
+          )}
+        </label>
+        <label>Time zone
+          <select name="timezone" value={form.timezone} onChange={handleChange}>
+            {TIMEZONES.map(tz => (
+              <option key={tz.value} value={tz.value}>{tz.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
 
-        {error && <div className="error-msg">{error}</div>}
-        <button type="submit" className="btn-primary">Generate Kundli</button>
-      </form>
-    </div>
+      <aside className="tip">
+        <span className="tip-icon" aria-hidden="true">◷</span>
+        <div><strong>Use your exact birth time</strong><p>The Ascendant can change with the time and location of birth.</p></div>
+      </aside>
+
+      {error && <div className="error-msg">{error}</div>}
+
+      <div className="form-actions">
+        <button className="button outline" type="button" onClick={fillExample}>Use example details</button>
+        <button className="button primary" type="submit">Generate Kundli <span aria-hidden="true">→</span></button>
+      </div>
+    </form>
   );
 }

@@ -1,14 +1,24 @@
 import { useState } from 'react';
 import NorthIndianChart from './NorthIndianChart.jsx';
 import SouthIndianChart from './SouthIndianChart.jsx';
-import { downloadKundliPdf } from '../lib/generatePdf.js';
 
 const PLANET_SYMBOLS = {
   Sun: '☉', Moon: '☽', Mercury: '☿', Venus: '♀',
   Mars: '♂', Jupiter: '♃', Saturn: '♄', Rahu: '☊', Ketu: '☋',
 };
 
-export default function Report({ data, onBack }) {
+const TABS = [
+  { id: 'basic', label: 'Basic Details' },
+  { id: 'charts', label: 'Charts' },
+  { id: 'planets', label: 'Planets' },
+  { id: 'houses', label: 'Houses' },
+  { id: 'kp', label: 'KP' },
+  { id: 'dasha', label: 'Dasha' },
+  { id: 'doshas', label: 'Doshas' },
+  { id: 'navamsha', label: 'Navamsha (D9)' },
+];
+
+export default function Report({ data, onBack, initialTab = 'basic', isExample = false }) {
   const { report, kp, planets: rawPlanets } = data;
   if (!report) return null;
 
@@ -17,32 +27,18 @@ export default function Report({ data, onBack }) {
     housePlacements, planetaryStrengths, currentDasha, dashaTimeline, doshas, navamsha,
   } = report;
 
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [expandedDasha, setExpandedDasha] = useState(null);
-  const [downloading, setDownloading] = useState(false);
 
-  async function handleDownloadPdf() {
-    setDownloading(true);
-    try { await downloadKundliPdf(data); }
-    catch (err) { console.error('PDF generation failed:', err); }
-    finally { setDownloading(false); }
-  }
-
-  // Retrograde map for chart rendering
   const retrogradeMap = rawPlanets
     ? Object.fromEntries(Object.entries(rawPlanets).map(([n, p]) => [n, p.isRetrograde]))
     : {};
-
-  // Degree map for chart rendering (planet name -> degree in sign)
   const degreeMap = rawPlanets
     ? Object.fromEntries(Object.entries(rawPlanets).map(([n, p]) => [n, p.degree ?? (p.longitude % 30)]))
     : {};
-
-  // Ascendant degree
   const ascDegree = data.ascendant?.degree ?? null;
 
-  // Bhav Chalit house placements from KP cusp-based house assignments (for North Indian chart)
-  const bhavChality = kp ? (() => {
+  const bhavChalit = kp ? (() => {
     const houses = Array.from({ length: 12 }, (_, i) => ({ house: i + 1, sign: kp.cusps[i]?.sign || '', lord: '', planets: [] }));
     for (const [name, planet] of Object.entries(kp.kpPlanets)) {
       const h = planet.kpHouse;
@@ -51,8 +47,6 @@ export default function Report({ data, onBack }) {
     return houses;
   })() : null;
 
-  // Bhav Chalit planets for South Indian chart — each planet's sign replaced with its KP house's cusp sign
-  // This makes planets appear in the cell of the sign they occupy by Placidus house, not their actual sign
   const bhavChalitPlanetsForSouth = kp ? (() => {
     const result = {};
     for (const [name, kpPlanet] of Object.entries(kp.kpPlanets)) {
@@ -62,123 +56,102 @@ export default function Report({ data, onBack }) {
     return result;
   })() : null;
 
-  const tabs = [
-    { id: 'basic', label: 'Basic Details' },
-    { id: 'charts', label: 'Charts' },
-    { id: 'planets', label: 'Planets' },
-    { id: 'houses', label: 'Houses' },
-    { id: 'kp', label: 'KP' },
-    { id: 'dasha', label: 'Dasha' },
-    { id: 'doshas', label: 'Doshas' },
-    { id: 'navamsha', label: 'Navamsha (D9)' },
-  ];
-
   return (
-    <div className="report">
-      <div className="report-topbar">
-        <button className="back-btn" onClick={onBack}>← New Chart</button>
-        <button className="pdf-btn" onClick={handleDownloadPdf} disabled={downloading}>
-          {downloading ? '⏳ Generating…' : '⬇ Download PDF'}
-        </button>
-      </div>
-
-      {/* Header */}
-      <div className="report-header">
-        <h2>{summary.name}</h2>
-        <div className="report-meta">
-          {summary.dateOfBirth} &bull; {summary.timeOfBirth} &bull; {summary.placeOfBirth}
+    <section id="report" className="report-chapter chapter">
+      <div className="wrap report">
+        <div className="report-actions">
+          <button type="button" className="button outline" onClick={onBack}>← Back to birth form</button>
+          <button type="button" className="button primary" onClick={() => window.print()}>↓ Save as PDF</button>
         </div>
-        <div className="birth-details">
-          <BirthDetail label="Ascendant (Lagna)" value={`${summary.ascendant} (${summary.ascendantLord})`} />
-          <BirthDetail label="Moon Sign (Rashi)" value={`${summary.moonSign} (${summary.rashiLord})`} />
-          <BirthDetail label="Sun Sign" value={summary.sunSign} />
-          <BirthDetail label="Birth Nakshatra" value={`${summary.birthNakshatra} Pada ${summary.nakshatraPada}`} />
-          <BirthDetail label="Nakshatra Lord" value={summary.nakshatraLord} />
+
+        <div className="report-hero">
+          <div className="report-heading">
+            <div className="eyebrow"><span aria-hidden="true">✦</span> {isExample ? 'SAMPLE KUNDLI REPORT' : 'KUNDLI REPORT'}</div>
+            <h2>{summary.name}</h2>
+            <p>{summary.dateOfBirth} · {summary.timeOfBirth} · {summary.placeOfBirth}</p>
+          </div>
+          <div className="report-brand">
+            <img className="shri-logo" src="/shri-aaum-logo.webp" width="99" height="128" alt="" />
+            <div><strong>Shri Aaum</strong><a href="https://shriaaum.com/" target="_blank" rel="noopener noreferrer">shriaaum.com</a></div>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="tabs">
-        {tabs.map(t => (
-          <button key={t.id} className={`tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+        {isExample && (
+          <p className="preview-note">This sample uses example birth details. Browse the tabs to explore the report.</p>
+        )}
 
-      {/* Basic Details */}
-      {activeTab === 'basic' && (
-        <Section title="Astrological Profile">
-          <div className="interp-block">
-            <div className="interp-title">Ascendant — {ascendantInterpretation.sign} ({ascendantInterpretation.element} / {ascendantInterpretation.quality})</div>
-            <div className="interp-text">{ascendantInterpretation.interpretation}</div>
-          </div>
-          <div className="interp-block">
-            <div className="interp-title">Moon Sign — {moonSignInterpretation.sign}</div>
-            <div className="interp-text">{moonSignInterpretation.interpretation}</div>
-          </div>
-          <div className="interp-block">
-            <div className="interp-title">Birth Nakshatra — {nakshatraInterpretation.nakshatra} (Lord: {nakshatraInterpretation.lord})</div>
-            <div className="interp-text">{nakshatraInterpretation.interpretation}</div>
-          </div>
-        </Section>
-      )}
+        <div className="traits">
+          <Trait label="Ascendant (Lagna)" value={`${summary.ascendant} · ${summary.ascendantLord}`} />
+          <Trait label="Moon sign (Rashi)" value={`${summary.moonSign} · ${summary.rashiLord}`} />
+          <Trait label="Sun sign" value={summary.sunSign} />
+          <Trait label="Birth Nakshatra" value={`${summary.birthNakshatra} · Pada ${summary.nakshatraPada}`} />
+          <Trait label="Nakshatra lord" value={summary.nakshatraLord} />
+        </div>
 
-      {/* Charts */}
-      {activeTab === 'charts' && (
-        <>
-          <div className="charts-section-label">North Indian Style</div>
+        <div className="tabs" role="tablist" aria-label="Kundli report sections">
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              className={`tab ${activeTab === t.id ? 'active' : ''}`}
+              aria-selected={activeTab === t.id}
+              onClick={() => setActiveTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Basic Details */}
+        <section className="panel" hidden={activeTab !== 'basic'}>
+          <h3>Astrological profile</h3>
+          <div className="report-grid">
+            <ReportCard
+              heading={`Ascendant · ${ascendantInterpretation.sign}`}
+              body={ascendantInterpretation.interpretation}
+            />
+            <ReportCard
+              heading={`Moon sign · ${moonSignInterpretation.sign}`}
+              body={moonSignInterpretation.interpretation}
+            />
+            <ReportCard
+              heading={`Birth Nakshatra · ${nakshatraInterpretation.nakshatra}`}
+              body={`Lord: ${nakshatraInterpretation.lord}. ${nakshatraInterpretation.interpretation}`}
+            />
+          </div>
+        </section>
+
+        {/* Charts */}
+        <section className="panel" hidden={activeTab !== 'charts'}>
+          <h3>Birth chart views</h3>
+          <div className="charts-section-label">North Indian style</div>
           <div className="charts-pair">
-            <Section title="Lagna Chart (Birth Chart)">
-              <NorthIndianChart
-                housePlacements={housePlacements}
-                title="Lagna Chart"
-                retrogradeMap={retrogradeMap}
-                degreeMap={degreeMap}
-                ascDegree={ascDegree}
-              />
-            </Section>
-            {bhavChality && (
-              <Section title="Bhav Chalit Chart (Placidus)">
-                <NorthIndianChart
-                  housePlacements={bhavChality}
-                  title="Bhav Chalit"
-                  retrogradeMap={retrogradeMap}
-                  degreeMap={degreeMap}
-                  ascDegree={ascDegree}
-                />
-              </Section>
+            <ChartCard title="Lagna Chart">
+              <NorthIndianChart housePlacements={housePlacements} title="Lagna Chart" retrogradeMap={retrogradeMap} degreeMap={degreeMap} ascDegree={ascDegree} />
+            </ChartCard>
+            {bhavChalit && (
+              <ChartCard title="Bhav Chalit Chart (Placidus)">
+                <NorthIndianChart housePlacements={bhavChalit} title="Bhav Chalit" retrogradeMap={retrogradeMap} degreeMap={degreeMap} ascDegree={ascDegree} />
+              </ChartCard>
             )}
           </div>
-          <div className="charts-section-label">South Indian Style</div>
+          <div className="charts-section-label">South Indian style</div>
           <div className="charts-pair">
-            <Section title="Lagna Chart — South Indian">
-              <SouthIndianChart
-                planets={data.planets}
-                ascendantSign={summary.ascendant}
-                title="South Indian Lagna"
-                retrogradeMap={retrogradeMap}
-                degreeMap={degreeMap}
-              />
-            </Section>
+            <ChartCard title="South Indian Lagna">
+              <SouthIndianChart planets={data.planets} ascendantSign={summary.ascendant} title="South Indian Lagna" retrogradeMap={retrogradeMap} degreeMap={degreeMap} />
+            </ChartCard>
             {bhavChalitPlanetsForSouth && (
-              <Section title="Bhav Chalit — South Indian">
-                <SouthIndianChart
-                  planets={bhavChalitPlanetsForSouth}
-                  ascendantSign={summary.ascendant}
-                  title="South Indian Bhav Chalit"
-                  retrogradeMap={retrogradeMap}
-                  degreeMap={degreeMap}
-                />
-              </Section>
+              <ChartCard title="South Indian Bhav Chalit">
+                <SouthIndianChart planets={bhavChalitPlanetsForSouth} ascendantSign={summary.ascendant} title="South Indian Bhav Chalit" retrogradeMap={retrogradeMap} degreeMap={degreeMap} />
+              </ChartCard>
             )}
           </div>
-        </>
-      )}
+        </section>
 
-      {/* Planetary Positions */}
-      {activeTab === 'planets' && (
-        <Section title="Planetary Positions">
+        {/* Planets */}
+        <section className="panel" hidden={activeTab !== 'planets'}>
+          <h3>Planetary positions</h3>
           <div className="table-wrap">
             <table className="planet-table">
               <thead>
@@ -212,121 +185,110 @@ export default function Report({ data, onBack }) {
               </tbody>
             </table>
           </div>
-        </Section>
-      )}
+        </section>
 
-      {/* Houses */}
-      {activeTab === 'houses' && (
-        <Section title="House Placements (Whole Sign)">
+        {/* Houses */}
+        <section className="panel" hidden={activeTab !== 'houses'}>
+          <h3>The twelve houses</h3>
           <div className="houses-grid">
             {housePlacements.map(h => (
-              <div key={h.house} className="house-item">
-                <div className="house-num">House {h.house}</div>
-                <div className="house-sign">{h.sign} — {h.lord}</div>
-                {h.planets.length > 0 && (
-                  <div className="house-planets">{h.planets.map(p => `${PLANET_SYMBOLS[p] || ''} ${p}`).join(', ')}</div>
-                )}
-                <div className="house-meaning">{h.meaning}</div>
-              </div>
+              <ReportCard
+                key={h.house}
+                heading={`House ${h.house} · ${h.sign}`}
+                body={`Lord · ${h.lord}${h.planets.length ? `<br>Planets · ${h.planets.map(p => `${PLANET_SYMBOLS[p] || ''} ${p}`).join(', ')}` : ''}<br>${h.meaning}`}
+              />
             ))}
           </div>
-        </Section>
-      )}
+        </section>
 
-      {/* KP System */}
-      {activeTab === 'kp' && kp && (
-        <>
-          {/* Ruling Planets */}
-          <Section title="Ruling Planets">
-            <div className="kp-ruling-grid">
-              <div className="kp-ruling-card">
-                <div className="kp-ruling-label">Ascendant</div>
-                <div className="kp-ruling-row"><span>Sign Lord</span><span className="kp-val">{kp.rulingPlanets.ascSignLord}</span></div>
-                <div className="kp-ruling-row"><span>Star Lord</span><span className="kp-val">{kp.rulingPlanets.ascStarLord}</span></div>
-                <div className="kp-ruling-row"><span>Sub Lord</span><span className="kp-val">{kp.rulingPlanets.ascSubLord}</span></div>
+        {/* KP */}
+        <section className="panel" hidden={activeTab !== 'kp'}>
+          {kp && (
+            <>
+              <h3>Krishnamurti Paddhati (KP)</h3>
+              <div className="kp-ruling-grid">
+                <div className="kp-ruling-card">
+                  <div className="kp-ruling-label">Ascendant</div>
+                  <div className="kp-ruling-row"><span>Sign Lord</span><span className="kp-val">{kp.rulingPlanets.ascSignLord}</span></div>
+                  <div className="kp-ruling-row"><span>Star Lord</span><span className="kp-val">{kp.rulingPlanets.ascStarLord}</span></div>
+                  <div className="kp-ruling-row"><span>Sub Lord</span><span className="kp-val">{kp.rulingPlanets.ascSubLord}</span></div>
+                </div>
+                <div className="kp-ruling-card">
+                  <div className="kp-ruling-label">Moon</div>
+                  <div className="kp-ruling-row"><span>Sign Lord</span><span className="kp-val">{kp.rulingPlanets.moonSignLord}</span></div>
+                  <div className="kp-ruling-row"><span>Star Lord</span><span className="kp-val">{kp.rulingPlanets.moonStarLord}</span></div>
+                  <div className="kp-ruling-row"><span>Sub Lord</span><span className="kp-val">{kp.rulingPlanets.moonSubLord}</span></div>
+                </div>
+                <div className="kp-ruling-card">
+                  <div className="kp-ruling-label">Day Lord</div>
+                  <div className="kp-ruling-row"><span>Planet</span><span className="kp-val">{kp.rulingPlanets.dayLord}</span></div>
+                </div>
               </div>
-              <div className="kp-ruling-card">
-                <div className="kp-ruling-label">Moon</div>
-                <div className="kp-ruling-row"><span>Sign Lord</span><span className="kp-val">{kp.rulingPlanets.moonSignLord}</span></div>
-                <div className="kp-ruling-row"><span>Star Lord</span><span className="kp-val">{kp.rulingPlanets.moonStarLord}</span></div>
-                <div className="kp-ruling-row"><span>Sub Lord</span><span className="kp-val">{kp.rulingPlanets.moonSubLord}</span></div>
-              </div>
-              <div className="kp-ruling-card">
-                <div className="kp-ruling-label">Day Lord</div>
-                <div className="kp-ruling-row"><span>Planet</span><span className="kp-val">{kp.rulingPlanets.dayLord}</span></div>
-              </div>
-            </div>
-          </Section>
-
-          {/* KP Planets Table */}
-          <Section title="KP Planets — Sign Lord · Star Lord · Sub Lord">
-            <div className="table-wrap">
-              <table className="planet-table">
-                <thead>
-                  <tr>
-                    <th>Planet</th><th>Sign</th><th>Degree</th><th>KP House</th>
-                    <th>Nakshatra</th><th>Sign Lord</th><th>Star Lord</th><th>Sub Lord</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.values(kp.kpPlanets).map(p => (
-                    <tr key={p.planet}>
-                      <td>
-                        <span className="planet-sym">{PLANET_SYMBOLS[p.planet] || ''}</span>
-                        {p.planet}
-                        {p.isRetrograde && <span className="badge retro">R</span>}
-                      </td>
-                      <td>{p.sign}</td>
-                      <td>{p.degree?.toFixed(2)}°</td>
-                      <td>{p.kpHouse}</td>
-                      <td>{p.nakshatra}</td>
-                      <td className="kp-lord">{p.signLord}</td>
-                      <td className="kp-lord">{p.starLord}</td>
-                      <td className="kp-lord kp-sub">{p.subLord}</td>
+              <br />
+              <div className="table-wrap">
+                <table className="planet-table">
+                  <thead>
+                    <tr>
+                      <th>Planet</th><th>Sign</th><th>Degree</th><th>KP House</th>
+                      <th>Nakshatra</th><th>Sign Lord</th><th>Star Lord</th><th>Sub Lord</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Section>
-
-          {/* KP Cusps Table */}
-          <Section title="KP Cusps (Placidus) — Sign Lord · Star Lord · Sub Lord">
-            <div className="table-wrap">
-              <table className="planet-table">
-                <thead>
-                  <tr>
-                    <th>Cusp</th><th>Degree</th><th>Sign</th><th>Nakshatra</th>
-                    <th>Sign Lord</th><th>Star Lord</th><th>Sub Lord</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {kp.cusps.map(c => (
-                    <tr key={c.house}>
-                      <td className="cusp-num">{c.house}</td>
-                      <td>{c.degree}°</td>
-                      <td>{c.sign}</td>
-                      <td>{c.nakshatra}</td>
-                      <td className="kp-lord">{c.signLord}</td>
-                      <td className="kp-lord">{c.starLord}</td>
-                      <td className="kp-lord kp-sub">{c.subLord}</td>
+                  </thead>
+                  <tbody>
+                    {Object.values(kp.kpPlanets).map(p => (
+                      <tr key={p.planet}>
+                        <td>
+                          <span className="planet-sym">{PLANET_SYMBOLS[p.planet] || ''}</span>
+                          {p.planet}
+                          {p.isRetrograde && <span className="badge retro">R</span>}
+                        </td>
+                        <td>{p.sign}</td>
+                        <td>{p.degree?.toFixed(2)}°</td>
+                        <td>{p.kpHouse}</td>
+                        <td>{p.nakshatra}</td>
+                        <td className="kp-lord">{p.signLord}</td>
+                        <td className="kp-lord">{p.starLord}</td>
+                        <td className="kp-lord kp-sub">{p.subLord}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <br />
+              <div className="table-wrap">
+                <table className="planet-table">
+                  <thead>
+                    <tr>
+                      <th>Cusp</th><th>Degree</th><th>Sign</th><th>Nakshatra</th>
+                      <th>Sign Lord</th><th>Star Lord</th><th>Sub Lord</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Section>
-        </>
-      )}
+                  </thead>
+                  <tbody>
+                    {kp.cusps.map(c => (
+                      <tr key={c.house}>
+                        <td className="cusp-num">{c.house}</td>
+                        <td>{c.degree}°</td>
+                        <td>{c.sign}</td>
+                        <td>{c.nakshatra}</td>
+                        <td className="kp-lord">{c.signLord}</td>
+                        <td className="kp-lord">{c.starLord}</td>
+                        <td className="kp-lord kp-sub">{c.subLord}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
 
-      {/* Dasha */}
-      {activeTab === 'dasha' && (
-        <Section title="Vimshottari Dasha">
+        {/* Dasha */}
+        <section className="panel" hidden={activeTab !== 'dasha'}>
+          <h3>Vimshottari Dasha</h3>
           {currentDasha && (
             <div className="dasha-current">
               <div className="maha">{currentDasha.mahadasha} Mahadasha</div>
               {currentDasha.antardasha && <div className="antar">{currentDasha.antardasha} Antardasha</div>}
-              <div className="period">
+              <div className="period-range">
                 Maha: {currentDasha.mahaStart} → {currentDasha.mahaEnd}
                 {currentDasha.antarEnd && ` · Antar ends: ${currentDasha.antarEnd}`}
               </div>
@@ -339,11 +301,7 @@ export default function Report({ data, onBack }) {
               const isExpanded = expandedDasha === i;
               return (
                 <div key={i}>
-                  <div
-                    className={`dasha-item ${isActive ? 'active' : ''}`}
-                    onClick={() => setExpandedDasha(isExpanded ? null : i)}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <div className={`dasha-item ${isActive ? 'active' : ''}`} onClick={() => setExpandedDasha(isExpanded ? null : i)}>
                     <div className="dasha-lord">{PLANET_SYMBOLS[d.lord] || ''} {d.lord}</div>
                     <div className="dasha-dates">{d.start} → {d.end}</div>
                     <div className="dasha-years">{d.years.toFixed(1)}y</div>
@@ -367,12 +325,11 @@ export default function Report({ data, onBack }) {
               );
             })}
           </div>
-        </Section>
-      )}
+        </section>
 
-      {/* Doshas */}
-      {activeTab === 'doshas' && (
-        <Section title="Doshas & Afflictions">
+        {/* Doshas */}
+        <section className="panel" hidden={activeTab !== 'doshas'}>
+          <h3>Dosha assessment</h3>
           <div className="dosha-list">
             {doshas.map((d, i) => (
               <div key={i} className={`dosha-item ${!d.present ? 'none' : d.severity === 'High' ? 'high' : 'mod'}`}>
@@ -383,12 +340,11 @@ export default function Report({ data, onBack }) {
               </div>
             ))}
           </div>
-        </Section>
-      )}
+        </section>
 
-      {/* Navamsha */}
-      {activeTab === 'navamsha' && (
-        <Section title="Navamsha Chart (D9)">
+        {/* Navamsha */}
+        <section className="panel" hidden={activeTab !== 'navamsha'}>
+          <h3>Navamsha (D9)</h3>
           <div className="table-wrap">
             <table className="planet-table">
               <thead>
@@ -405,26 +361,25 @@ export default function Report({ data, onBack }) {
               </tbody>
             </table>
           </div>
-        </Section>
-      )}
-    </div>
+        </section>
+      </div>
+    </section>
   );
 }
 
-function Section({ title, children }) {
-  return (
-    <div className="section-card">
-      <div className="section-header"><h3>{title}</h3></div>
-      <div className="section-body">{children}</div>
-    </div>
-  );
+function Trait({ label, value }) {
+  return <div className="trait">{label}<strong>{value}</strong></div>;
 }
 
-function BirthDetail({ label, value }) {
+function ReportCard({ heading, body }) {
+  return <article className="report-card"><h4>{heading}</h4><p dangerouslySetInnerHTML={{ __html: body }} /></article>;
+}
+
+function ChartCard({ title, children }) {
   return (
-    <div className="birth-detail-item">
-      <div className="label">{label}</div>
-      <div className="value">{value}</div>
-    </div>
+    <article className="chart-card">
+      <h4>{title}</h4>
+      {children}
+    </article>
   );
 }
