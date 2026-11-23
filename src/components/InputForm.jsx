@@ -35,7 +35,9 @@ export default function InputForm({ onSubmit }) {
   const [ianaZone, setIanaZone] = useState(null);
   const [autoTzLocked, setAutoTzLocked] = useState(false);
   const debounceRef = useRef(null);
+  const requestIdRef = useRef(0);
   const maxDate = useMemo(todayStr, []);
+  const minDate = '1900-01-01';
 
   // Re-derive the UTC offset whenever the birth date/time changes, as long as the place's
   // time zone was auto-detected and the user hasn't manually overridden it since.
@@ -66,10 +68,14 @@ export default function InputForm({ onSubmit }) {
     const val = e.target.value;
     setPlaceQuery(val);
     setHighlightedIndex(-1);
+    // Clear stale suggestions immediately so a query change can never leave the previous
+    // query's results selectable while the new search is still in flight.
+    setSuggestions([]);
     setForm(prev => ({ ...prev, placeOfBirth: val, latitude: '', longitude: '' }));
 
     clearTimeout(debounceRef.current);
-    if (val.length < 3) { setSuggestions([]); return; }
+    const requestId = ++requestIdRef.current;
+    if (val.length < 3) return;
 
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
@@ -78,14 +84,17 @@ export default function InputForm({ onSubmit }) {
         const res = await fetch(url, {
           headers: { 'Accept-Language': 'en', 'User-Agent': 'ShriAaumKundli/1.0' },
         });
+        // Ignore a response for a query that's no longer the latest one — requests can
+        // resolve out of order, which would otherwise repopulate stale suggestions.
+        if (requestId !== requestIdRef.current) return;
         if (res.ok) {
           const data = await res.json();
-          setSuggestions(data.slice(0, 5));
+          if (requestId === requestIdRef.current) setSuggestions(data.slice(0, 5));
         }
       } catch (_) {
-        setSuggestions([]);
+        if (requestId === requestIdRef.current) setSuggestions([]);
       } finally {
-        setSearching(false);
+        if (requestId === requestIdRef.current) setSearching(false);
       }
     }, 400);
   }
@@ -98,6 +107,7 @@ export default function InputForm({ onSubmit }) {
     let zone = null;
     try { zone = tzlookup(lat, lon); } catch (_) { zone = null; }
 
+    requestIdRef.current++;
     setPlaceQuery(displayName);
     setSuggestions([]);
     setHighlightedIndex(-1);
@@ -134,6 +144,7 @@ export default function InputForm({ onSubmit }) {
   }
 
   function fillExample() {
+    requestIdRef.current++;
     setError('');
     setSuggestions([]);
     setHighlightedIndex(-1);
@@ -149,6 +160,7 @@ export default function InputForm({ onSubmit }) {
     if (!form.name.trim()) return setError('Please enter a name.');
     if (!form.dateOfBirth) return setError('Please enter date of birth.');
     if (form.dateOfBirth > maxDate) return setError('Date of birth cannot be in the future.');
+    if (form.dateOfBirth < minDate) return setError('Date of birth must be on or after 1 January 1900.');
     if (!form.timeOfBirth) return setError('Please enter time of birth.');
     if (!form.latitude || !form.longitude) return setError('Please select a place of birth from the suggestions.');
 
@@ -175,7 +187,7 @@ export default function InputForm({ onSubmit }) {
           </select>
         </label>
         <label>Date of birth
-          <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} max={maxDate} />
+          <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} min={minDate} max={maxDate} />
         </label>
         <label>Time of birth
           <input type="time" name="timeOfBirth" value={form.timeOfBirth} onChange={handleChange} />
