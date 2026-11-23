@@ -489,8 +489,13 @@ th,.planet-table th{background:#faecd9;color:#823719;font-size:0.72rem;text-tran
   .panel h3{break-after:avoid;page-break-after:avoid}
   .charts-section-label{break-after:avoid;page-break-after:avoid}
   .report-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .report-card,.chart-card,.houses-grid>*,table tr,.charts-pair{break-inside:avoid;page-break-inside:avoid}
+  .report-card,.chart-card,.houses-grid>*,table tr{break-inside:avoid;page-break-inside:avoid}
   .chart-card h4{font-size:15px;line-height:1.2}
   .table-wrap{overflow:visible}
   table{white-space:normal}
+  .planet-table th,.planet-table td{white-space:normal;word-break:break-word;padding:5px 6px;font-size:11px}
+  /* Flex-row fragmentation across pages is unreliable, so stack the pair as plain
+     blocks for print; break-inside:avoid then works on the well-supported block path. */
+  .charts-pair{display:block;break-inside:avoid;page-break-inside:avoid}
+  .charts-pair .chart-card{margin-bottom:12px}
 }
