@@ -48,6 +48,7 @@ export default function SouthIndianChart({ planets, ascendantSign, title, retrog
   return (
     <div className="si-wrap">
       <div className="si-title">{title}</div>
+      <div className="si-grid-wrap">
       <div className="si-grid">
         {Object.entries(SIGN_GRID).map(([sign, [col, row]]) => {
           const isAsc = sign === ascendantSign;
@@ -80,6 +81,7 @@ export default function SouthIndianChart({ planets, ascendantSign, title, retrog
         <div className="si-center">
           <span className="si-center-star">✦</span>
         </div>
+      </div>
       </div>
     </div>
   );

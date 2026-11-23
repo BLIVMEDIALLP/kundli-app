@@ -281,9 +281,12 @@ th,.planet-table th{background:#faecd9;color:#823719;font-size:0.72rem;text-tran
 .charts-pair{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem}
 .ni-wrap,.si-wrap{display:flex;flex-direction:column;align-items:center;padding:.25rem 0 .5rem}
 .ni-title,.si-title{font-size:.72rem;font-weight:700;color:#9a7830;text-align:center;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.07em}
-.ni-svg-wrap{overflow:auto;width:100%;display:flex;justify-content:center}
+.ni-svg-wrap{overflow:auto;width:100%;display:flex;justify-content:flex-start}
+.ni-svg-wrap{justify-content:safe center}
 .ni-svg-wrap svg{min-width:320px}
-.si-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:260px;height:260px;border:2.5px solid #b57749;background:#fff3dc}
+.si-grid-wrap{overflow:auto;width:100%;display:flex;justify-content:flex-start}
+.si-grid-wrap{justify-content:safe center}
+.si-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:260px;height:260px;border:2.5px solid #b57749;background:#fff3dc;flex:none}
 @media (min-width:500px){.si-grid{width:300px;height:300px}}
 .si-cell{border:1.5px solid #c8a46f;padding:3px 3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#fff3dc}
 .si-cell-asc{background:#ffe9c2}
@@ -483,8 +486,10 @@ th,.planet-table th{background:#faecd9;color:#823719;font-size:0.72rem;text-tran
   .trait strong{font-size:16px;line-height:1.25}
   .panel[hidden]{display:block!important}
   .panel{break-inside:auto;margin-top:14px;border:1px solid #ddd}
+  .panel h3{break-after:avoid;page-break-after:avoid}
+  .charts-section-label{break-after:avoid;page-break-after:avoid}
   .report-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .report-card,.chart-card,.houses-grid>*,table tr{break-inside:avoid}
+  .report-card,.chart-card,.houses-grid>*,table tr,.charts-pair{break-inside:avoid;page-break-inside:avoid}
   .chart-card h4{font-size:15px;line-height:1.2}
   .table-wrap{overflow:visible}
   table{white-space:normal}
