@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import NorthIndianChart from './NorthIndianChart.jsx';
 import SouthIndianChart from './SouthIndianChart.jsx';
 
@@ -29,6 +29,19 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [expandedDasha, setExpandedDasha] = useState(null);
+  const tabRefs = useRef([]);
+
+  function handleTabKeyDown(e, index) {
+    let newIndex = null;
+    if (e.key === 'ArrowRight') newIndex = (index + 1) % TABS.length;
+    else if (e.key === 'ArrowLeft') newIndex = (index - 1 + TABS.length) % TABS.length;
+    else if (e.key === 'Home') newIndex = 0;
+    else if (e.key === 'End') newIndex = TABS.length - 1;
+    if (newIndex === null) return;
+    e.preventDefault();
+    setActiveTab(TABS[newIndex].id);
+    tabRefs.current[newIndex]?.focus();
+  }
 
   const retrogradeMap = rawPlanets
     ? Object.fromEntries(Object.entries(rawPlanets).map(([n, p]) => [n, p.isRetrograde]))
@@ -89,14 +102,19 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </div>
 
         <div className="tabs" role="tablist" aria-label="Kundli report sections">
-          {TABS.map(t => (
+          {TABS.map((t, i) => (
             <button
               key={t.id}
+              ref={el => { tabRefs.current[i] = el; }}
               type="button"
               role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={`panel-${t.id}`}
               className={`tab ${activeTab === t.id ? 'active' : ''}`}
               aria-selected={activeTab === t.id}
+              tabIndex={activeTab === t.id ? 0 : -1}
               onClick={() => setActiveTab(t.id)}
+              onKeyDown={e => handleTabKeyDown(e, i)}
             >
               {t.label}
             </button>
@@ -104,7 +122,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </div>
 
         {/* Basic Details */}
-        <section className="panel" hidden={activeTab !== 'basic'}>
+        <section className="panel" id="panel-basic" role="tabpanel" aria-labelledby="tab-basic" hidden={activeTab !== 'basic'}>
           <h3>Astrological profile</h3>
           <div className="report-grid">
             <ReportCard
@@ -123,7 +141,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Charts */}
-        <section className="panel" hidden={activeTab !== 'charts'}>
+        <section className="panel" id="panel-charts" role="tabpanel" aria-labelledby="tab-charts" hidden={activeTab !== 'charts'}>
           <h3>Birth chart views</h3>
           <div className="charts-section-label">North Indian style</div>
           <div className="charts-pair">
@@ -150,7 +168,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Planets */}
-        <section className="panel" hidden={activeTab !== 'planets'}>
+        <section className="panel" id="panel-planets" role="tabpanel" aria-labelledby="tab-planets" hidden={activeTab !== 'planets'}>
           <h3>Planetary positions</h3>
           <div className="table-wrap">
             <table className="planet-table">
@@ -188,7 +206,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Houses */}
-        <section className="panel" hidden={activeTab !== 'houses'}>
+        <section className="panel" id="panel-houses" role="tabpanel" aria-labelledby="tab-houses" hidden={activeTab !== 'houses'}>
           <h3>The twelve houses</h3>
           <div className="houses-grid">
             {housePlacements.map(h => (
@@ -202,7 +220,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* KP */}
-        <section className="panel" hidden={activeTab !== 'kp'}>
+        <section className="panel" id="panel-kp" role="tabpanel" aria-labelledby="tab-kp" hidden={activeTab !== 'kp'}>
           {kp && (
             <>
               <h3>Krishnamurti Paddhati (KP)</h3>
@@ -282,7 +300,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Dasha */}
-        <section className="panel" hidden={activeTab !== 'dasha'}>
+        <section className="panel" id="panel-dasha" role="tabpanel" aria-labelledby="tab-dasha" hidden={activeTab !== 'dasha'}>
           <h3>Vimshottari Dasha</h3>
           {currentDasha && (
             <div className="dasha-current">
@@ -301,7 +319,19 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
               const isExpanded = expandedDasha === i;
               return (
                 <div key={i}>
-                  <div className={`dasha-item ${isActive ? 'active' : ''}`} onClick={() => setExpandedDasha(isExpanded ? null : i)}>
+                  <div
+                    className={`dasha-item ${isActive ? 'active' : ''}`}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isExpanded}
+                    onClick={() => setExpandedDasha(isExpanded ? null : i)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setExpandedDasha(isExpanded ? null : i);
+                      }
+                    }}
+                  >
                     <div className="dasha-lord">{PLANET_SYMBOLS[d.lord] || ''} {d.lord}</div>
                     <div className="dasha-dates">{d.start} → {d.end}</div>
                     <div className="dasha-years">{d.years.toFixed(1)}y</div>
@@ -328,7 +358,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Doshas */}
-        <section className="panel" hidden={activeTab !== 'doshas'}>
+        <section className="panel" id="panel-doshas" role="tabpanel" aria-labelledby="tab-doshas" hidden={activeTab !== 'doshas'}>
           <h3>Dosha assessment</h3>
           <div className="dosha-list">
             {doshas.map((d, i) => (
@@ -343,7 +373,7 @@ export default function Report({ data, onBack, initialTab = 'basic', isExample =
         </section>
 
         {/* Navamsha */}
-        <section className="panel" hidden={activeTab !== 'navamsha'}>
+        <section className="panel" id="panel-navamsha" role="tabpanel" aria-labelledby="tab-navamsha" hidden={activeTab !== 'navamsha'}>
           <h3>Navamsha (D9)</h3>
           <div className="table-wrap">
             <table className="planet-table">

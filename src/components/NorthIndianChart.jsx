@@ -89,7 +89,7 @@ function PlanetGroup({ planets, pos, retrogradeMap, degreeMap }) {
         textAnchor="middle"
         dominantBaseline="middle"
         fill={color}
-        fontSize="10"
+        fontSize="12"
         fontWeight="700"
         fontFamily="Inter, sans-serif"
       >
@@ -134,7 +134,7 @@ export default function NorthIndianChart({
               textAnchor="middle"
               dominantBaseline="middle"
               fill="#cc3333"
-              fontSize="11"
+              fontSize="13"
               fontWeight="700"
               fontFamily="Inter, sans-serif"
             >
@@ -154,7 +154,7 @@ export default function NorthIndianChart({
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="#8a7a50"
-                fontSize="11"
+                fontSize="13"
                 fontWeight="600"
                 fontFamily="Inter, sans-serif"
               >
@@ -170,7 +170,7 @@ export default function NorthIndianChart({
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#9a8030"
-            fontSize="9"
+            fontSize="11"
             fontStyle="italic"
             fontFamily="Inter, sans-serif"
           >

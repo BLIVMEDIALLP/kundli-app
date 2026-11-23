@@ -26,6 +26,11 @@ export function checkDoshas(planets, houses, ascendant) {
       description: `Mars is in a sensitive position from ${sources.join(', ')}, affecting marital harmony.`,
       remedy: 'Wearing a red coral gemstone, Mangal Yantra, or performing Kuja Shanti puja may help.',
     });
+  } else {
+    doshas.push({
+      name: 'Mangal Dosha (Kuja Dosha)', present: false,
+      description: 'Mars is not placed in a sensitive house from the Lagna, Moon, or Venus — no Mangal Dosha indicated.',
+    });
   }
 
   // 2. Kaal Sarp Dosha
@@ -47,6 +52,11 @@ export function checkDoshas(planets, houses, ascendant) {
       description: 'All planets are hemmed between Rahu and Ketu, indicating karmic challenges and delays.',
       remedy: 'Performing Kaal Sarp Shanti Puja at temples like Trimbakeshwar is recommended.',
     });
+  } else {
+    doshas.push({
+      name: 'Kaal Sarp Dosha', present: false,
+      description: 'The planets are not all hemmed between Rahu and Ketu — no Kaal Sarp Dosha indicated.',
+    });
   }
 
   // 3. Shrapit Dosha
@@ -55,6 +65,11 @@ export function checkDoshas(planets, houses, ascendant) {
       name: 'Shrapit Dosha', present: true, severity: 'Moderate',
       description: 'Saturn and Rahu are conjunct, indicating past-life karmic debts.',
       remedy: 'Regular worship of Lord Shiva and chanting Maha Mrityunjaya Mantra.',
+    });
+  } else {
+    doshas.push({
+      name: 'Shrapit Dosha', present: false,
+      description: 'Saturn and Rahu are not conjunct — no Shrapit Dosha indicated.',
     });
   }
 
@@ -66,6 +81,11 @@ export function checkDoshas(planets, houses, ascendant) {
       description: `Jupiter is conjunct ${with_}, potentially clouding wisdom and creating ethical dilemmas.`,
       remedy: 'Donating yellow items on Thursdays and chanting Guru Beej Mantra.',
     });
+  } else {
+    doshas.push({
+      name: 'Guru Chandal Dosha', present: false,
+      description: 'Jupiter is not conjunct Rahu or Ketu — no Guru Chandal Dosha indicated.',
+    });
   }
 
   // 5. Pitru Dosha
@@ -74,6 +94,11 @@ export function checkDoshas(planets, houses, ascendant) {
       name: 'Pitru Dosha', present: true, severity: 'Moderate',
       description: 'Sun with Rahu/Ketu in the 9th house indicates ancestral karmic issues.',
       remedy: 'Performing Pitru Tarpan and Shraddha ceremonies regularly.',
+    });
+  } else {
+    doshas.push({
+      name: 'Pitru Dosha', present: false,
+      description: 'The Sun is not placed with Rahu or Ketu in the 9th house — no Pitru Dosha indicated.',
     });
   }
 
