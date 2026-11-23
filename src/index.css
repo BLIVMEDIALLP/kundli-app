@@ -491,6 +491,10 @@ th,.planet-table th{background:#faecd9;color:#823719;font-size:0.72rem;text-tran
   .report-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .report-card,.chart-card,.houses-grid>*,table tr{break-inside:avoid;page-break-inside:avoid}
   .chart-card h4{font-size:15px;line-height:1.2}
+  /* The Lagna + Bhav Chalit pair plus their heading is taller than one A4 page at the
+     screen chart size (measured ~1143px of ~1005px available), so the pair always had
+     to split. Shrink the North Indian SVGs for print so the whole pair fits one page. */
+  .ni-svg-wrap svg{max-width:300px!important;min-width:0}
   .table-wrap{overflow:visible}
   table{white-space:normal}
   .planet-table th,.planet-table td{white-space:normal;word-break:break-word;padding:5px 6px;font-size:11px}
